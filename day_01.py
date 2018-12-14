@@ -14,13 +14,16 @@ while True:
 
 position = 0
 found = False
+first_application = 0
 while not found:
     for instruction in instructions:
         position += int(instruction)
         if position in frequencies:
-            print("Found!")
             found = True
             break
         frequencies.append(position)
+    if first_application == 0:
+        first_application = frequencies[-1]
 
-print(position)
+print "Part One:", first_application
+print "Part Two:", position
