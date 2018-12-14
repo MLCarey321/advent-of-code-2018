@@ -59,6 +59,6 @@ def get_value(node):
 
 
 puzzle = list(map(int, sys.stdin.readline().split()))
-print(get_metadata(0, puzzle))
+print "Part One:", get_metadata(0, puzzle)[1]
 root_node = get_part_two(0, puzzle)[1]
-print(get_value(root_node))
+print "Part Two:", get_value(root_node)

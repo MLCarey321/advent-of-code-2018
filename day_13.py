@@ -79,7 +79,6 @@ while len(carts) > 1:
         elif track.intersection():
             cart.takeintersection()
         if next_coord in [other.location for other in carts]:
-            #print "Collision at %d,%d" % next_coord
             if first_collision is None:
                 first_collision = next_coord
             carts = [other for other in carts if other.location not in (cart.location, next_coord)]
