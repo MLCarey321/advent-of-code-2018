@@ -1,9 +1,8 @@
-#!/usr/bin/python3
+# !/usr/bin/python3
 
 import sys
 import operator
 from copy import deepcopy
-import thread
 
 
 class Goblin:
@@ -31,7 +30,7 @@ def get_manhattan(pos1, pos2):
 
 
 def take_turn(combatant, enemies):
-    print "Taking turn for", combatant
+    # print "Taking turn for", combatant
     target = get_target_enemy(combatant.location, enemies)
     if target is None:
         available_enemies = deepcopy(enemies)
@@ -47,24 +46,24 @@ def take_turn(combatant, enemies):
             return
         closest_enemy = get_closest_enemy(combatant.location, available_enemies)
         if closest_enemy is not None:
-            print "\tTarget Found!"
+            # print "\tTarget Found!"
             target = closest_enemy.keys()[0]
             target_path = closest_enemy[target]
-            print "\t\tMoving", combatant, "to", target_path[1]
+            # print "\t\tMoving", combatant, "to", target_path[1]
             cave[combatant.location] = None
             cave[target_path[1]] = combatant
             combatant.location = target_path[1]
             target = get_target_enemy(target_path[1], enemies)
-        else:
-            print "\t!!!DANGER!!! NO TARGET FOUND!!! DOUBLE CHECK RESULTS!!!"
-            print "\t\t", combatant
-    else:
-        print "\tAlready adjacent to enemy!"
+        # else:
+            # print "\t!!!DANGER!!! NO TARGET FOUND!!! DOUBLE CHECK RESULTS!!!"
+            # print "\t\t", combatant
+    # else:
+        # print "\tAlready adjacent to enemy!"
     if target is not None:
-        print combatant, "attacking", target
+        # print combatant, "attacking", target
         target.hp -= combatant.attack
         if target.hp <= 0:
-            print "\tTarget Vanquished!"
+            # print "\tTarget Vanquished!"
             cave[target.location] = None
 
 
@@ -117,7 +116,7 @@ def print_cave():
         row = ""
         for x in range(max(k[0] for k in cave.keys())+2):
             if (x, y) not in cave.keys():
-                row += "#"
+                row += "# "
             else:
                 square = cave[(x, y)]
                 row += "." if square is None else square.__class__.__name__[0]
@@ -130,9 +129,38 @@ def print_combatants():
         print place, cave[place]
 
 
-cave = {}
+def get_outcome(elf_attack):
+    for elf in [e for e in cave.values() if e is not None and e.__class__ == Elf]:
+        elf.attack = elf_attack
+    winners = None
+    fight_round = 0
+    while winners is None:
+        for location in sorted([loc for loc in cave.keys() if cave[loc] is not None], key=operator.itemgetter(1, 0)):
+            elves = [e for e in cave.values() if e is not None and e.__class__ == Elf]
+            goblins = [g for g in cave.values() if g is not None and g.__class__ == Goblin]
+            if len(elves) == 0 or len(goblins) == 0:
+                winners = elves if len(elves) > 0 else goblins
+                break
+            occupant = cave[location]
+            if occupant is None:
+                continue
+            oc = occupant.__class__
+            if oc == Elf:
+                take_turn(occupant, goblins)
+            else:
+                take_turn(occupant, elves)
+        fight_round += 1
+        # print "ROUND %d RESULTS" % fight_round
+        # print_cave()
+        # for place in sorted([l for l in cave.keys() if cave[l] is not None], key=operator.itemgetter(1, 0)):
+        #     print cave[place]
+        # print "--------------------------------------------------------------------------------------------------------"
+    fight_round -= 1
+    return fight_round, winners
+
 
 print("Paste Puzzle Input:  ")
+cave = {}
 y = 0
 while True:
     line = sys.stdin.readline()
@@ -150,31 +178,22 @@ while True:
     else:
         break
 
-winners = None
-fight_round = 0
-while winners is None:
-    for location in sorted([loc for loc in cave.keys() if cave[loc] is not None], key=operator.itemgetter(1, 0)):
-        elves = [e for e in cave.values() if e is not None and e.__class__ == Elf]
-        goblins = [g for g in cave.values() if g is not None and g.__class__ == Goblin]
-        if len(elves) == 0 or len(goblins) == 0:
-            winners = elves if len(elves) > 0 else goblins
-            break
-        occupant = cave[location]
-        if occupant is None:
-            continue
-        oc = occupant.__class__
-        if oc == Elf:
-            take_turn(occupant, goblins)
-        else:
-            take_turn(occupant, elves)
-    fight_round += 1
-    print "ROUND %d RESULTS" % fight_round
-    print_cave()
-    for place in sorted([l for l in cave.keys() if cave[l] is not None], key=operator.itemgetter(1, 0)):
-        print cave[place]
-    print "------------------------------------------------------------------------------------------------------------"
-
-fight_round -= 1
-print "Round:", fight_round
-print "Combined Winning HP:", sum([winner.hp for winner in winners])
+initial_cave = deepcopy(cave)
+elves = [e for e in cave.values() if e is not None and e.__class__ == Elf]
+elf_attack = 3
+fight_round, winners = get_outcome(elf_attack)
+# print "Round:", fight_round
+# print "Combined Winning HP:", sum([winner.hp for winner in winners])
 print "Part One:", fight_round * sum([winner.hp for winner in winners])
+
+while True:
+    cave = deepcopy(initial_cave)
+    elf_count = len([e for e in cave.values() if e is not None and e.__class__ == Elf])
+    elf_attack += 1
+    fight_round, winners = get_outcome(elf_attack)
+    if winners[0].__class__ == Elf and len(winners) == elf_count:
+        break
+
+# print "Round:", fight_round
+# print "Combined Winning HP:", sum([winner.hp for winner in winners])
+print "Part Two:", fight_round * sum([winner.hp for winner in winners])
