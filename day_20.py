@@ -70,6 +70,5 @@ while True:
         break
     paths = new_paths
 
-print final_path_lengths
 print "Part One:", max(final_path_lengths.values())
 print "Part Two:", len([l for l in final_path_lengths.values() if l >= 1000])
