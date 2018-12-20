@@ -52,17 +52,14 @@ for direction in path_regex:
         prev_loc = current_loc
 
 paths = [[(0, 0)]]
-final_path_lengths = defaultdict(int)
+final_path_lengths = defaultdict(lambda: len(rooms))
 while True:
     new_paths = []
     visited = set([n for p in paths for n in p])
     for path in paths:
         for adj in rooms[path[-1]].adjacent_rooms:
             if adj not in path:
-                if adj in final_path_lengths.keys():
-                    final_path_lengths[adj] = min(len(path), final_path_lengths[adj])
-                else:
-                    final_path_lengths[adj] = len(path)
+                final_path_lengths[adj] = min(len(path), final_path_lengths[adj])
                 new_path = deepcopy(path)
                 new_path.append(adj)
                 new_paths.append(new_path)
