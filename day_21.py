@@ -31,9 +31,9 @@ instruction_pattern = r"(?P<opcode>[a-zA-Z]+)\s(?P<var1>\d+)\s(?P<var2>\d+)\s(?P
 
 registers = [0, 0, 0, 0, 0, 0]
 instructions = []
-print "Instruction Pointer Register:"
+print("Instruction Pointer Register:")
 ip_register = int(sys.stdin.readline())
-print "Instructions:  "
+print("Instructions:")
 while True:
     line = sys.stdin.readline()
     if len(line) > 1:
@@ -41,17 +41,22 @@ while True:
     else:
         break
 
+part_one = 0
+part_two = 0
+seen = []
 while registers[ip_register] < len(instructions):
     ip = registers[ip_register]
     instruction = instructions[ip]
     execute(instruction["opcode"], int(instruction["var1"]), int(instruction["var2"]), int(instruction["var3"]))
     registers[ip_register] += 1
+    if ip == 28:
+        if part_one == 0:
+            part_one = registers[4]
+        elif registers[4] in seen:
+            break
+        else:
+            part_two = registers[4]
+            seen.append(part_two)
 
-registers[ip_register] -= 1
-print "Part One:", registers[0]
-
-sum_of_factors = 0
-for i in range(1, 10551288):
-    if 10551287 % i == 0:
-        sum_of_factors += i
-print "Part Two:", sum_of_factors
+print("Part One:", part_one)
+print("Part Two:", part_two)
